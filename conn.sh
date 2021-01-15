@@ -2,11 +2,18 @@
 if [[ -z "$1" ]]; then
     echo "Usage: conn [ip] (y/n)"
     exit
+elif [[ "$2" != p ]]; then
+    echo "multi-ip mode detected, only checking availability"
+    echo ""
+    echo "-------------------Availability----------------------"
+    fping "$@"
+    echo "-----------------------------------------------------"
+    exit
 elif [[ -n "$1" ]]; then
     echo "checking connection status for $1"
-    echo "-----------------------------------------"
+    echo "-------------------Availability----------------------"
     fping $1
-    echo "-----------------------------------------"
+    echo "-----------------------------------------------------"
 fi
 if [[ -z "$2" ]]; then
        echo "portscan? (y/n)"
