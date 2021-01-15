@@ -1,9 +1,18 @@
+#!/bin/bash
+
+while [ ! -n "$1" ]; do
+      echo "Usage: $0 (-m) <ip> (y/n)"
+      echo "Options:"
+      echo " -m/--multi -- test multiple ips / disable portscan"
+      echo " -h/--help -- show help"
+      exit
+done
 while [ ! -z "$1" ]; do
    if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]];then
       echo "Usage: $0 (-m) <ip> (y/n)"
       echo "Options:"
       echo " -m/--multi -- test multiple ips / disable portscan"
-      printf " -h/--help -- show help"
+      echo " -h/--help -- show help"
       exit
    elif [[ $1 == "-m" ]] || [[ "$1" == "--multi" ]];then
       echo "multi-ip mode, portscan disabled"
