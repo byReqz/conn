@@ -9,6 +9,7 @@ while [ ! -n "$1" ]; do
       echo " -y/--yes -- portscan without asking"
       echo " -n/--no -- dont portscan"
       echo " -p/--portscan -- same as -y"
+      echo " -w/--wait -- wait for active connection"
       exit
 done
 while [ ! -z "$1" ]; do
@@ -21,6 +22,7 @@ while [ ! -z "$1" ]; do
       echo " -y/--yes -- portscan without asking"
       echo " -n/--no -- dont portscan"
       echo " -p/--portscan -- same as -y"
+      echo " -w/--wait -- wait for active connection"
       exit
    elif [[ $1 == "-m" ]] || [[ "$1" == "--multi" ]];then
       echo "multi-ip mode, portscan disabled"
@@ -54,6 +56,27 @@ while [ ! -z "$1" ]; do
       nmap -Pn -6 $2
       fping -6 -c 4 -A $2
       echo "------------------------------------------------"
+      exit
+   elif [[ "$1" == "-w" ]] || [[ "$1" == "--wait" ]];then
+      echo "-w used, waiting for active connection"
+      echo "checking connection status for $2"
+      while [[ "$(fping -q -u $2)" == "$2" ]]; do :
+         done
+      notify-send "$2 is now reachable" -u normal -t 8000 -a conn
+      echo "-------------------Availability----------------------"
+      fping -e $2
+      echo "-----------------------------------------------------"
+      echo "portscan? (y/n) (default: y)"
+      read portscan
+      if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
+      echo "-------------------Portscan---------------------"
+      nmap -Pn $2
+      fping -c 4 -A $2
+      echo "------------------------------------------------"
+      exit
+      elif [[ "$portscan" = "n" ]]; then
+      exit
+      fi
       exit
    #this checks if the ip is (not) ipv4 and then checks if it includes a :
    elif [[ ! "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ "$1" =~ [:] ]];then
