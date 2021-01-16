@@ -55,7 +55,8 @@ while [ ! -z "$1" ]; do
       fping -6 -c 4 -A $2
       echo "------------------------------------------------"
       exit
-   elif [[ ! "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]];then
+   #this checks if the ip is (not) ipv4 and then checks if it includes a :
+   elif [[ ! "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ "$1" =~ [:] ]];then
       echo "noticed IPv6 adress -> using -6"
       echo "checking connection status for $1"
       echo "-------------------Availability----------------------"
