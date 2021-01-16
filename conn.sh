@@ -1,10 +1,14 @@
 #!/bin/bash
 
 while [ ! -n "$1" ]; do
-      echo "Usage: $0 (-m) <ip> (y/n)"
+      echo "Usage: $0 (-m) <ip>"
       echo "Options:"
       echo " -m/--multi -- test multiple ips / disable portscan"
       echo " -h/--help -- show help"
+      echo " -6/--force-ipv6 -- force ipv6 portscanning (also forces portscanning)"
+      echo " -y/--yes -- portscan without asking"
+      echo " -n/--no -- dont portscan"
+      echo " -p/--portscan -- same as -y"
       exit
 done
 while [ ! -z "$1" ]; do
@@ -35,7 +39,29 @@ while [ ! -z "$1" ]; do
     echo "-------------------Availability----------------------"
     fping $2
     echo "-----------------------------------------------------"
-      exit
+    exit
+   elif [[ $1 == "-6" ]] || [[ "$1" == "--force-ipv6" ]];then
+    echo "-6 used, forcing IPv6 portscanning"
+    echo "checking connection status for $2"
+    echo "-------------------Availability----------------------"
+    fping $2
+    echo "-----------------------------------------------------"
+    echo "-------------------Portscan---------------------"
+    nmap -Pn -6 $2
+    fping -c 4 -A $2
+    echo "------------------------------------------------"
+    exit
+   elif [[ ! "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]];then
+    echo "noticed IPv6 adress -> using -6"
+    echo "checking connection status for $1"
+    echo "-------------------Availability----------------------"
+    fping $1
+    echo "-----------------------------------------------------"
+    echo "-------------------Portscan---------------------"
+    nmap -Pn -6 $1
+    fping -c 4 -A $1
+    echo "------------------------------------------------"
+    exit
    else
       echo "checking connection status for $1"
       echo "-------------------Availability----------------------"
