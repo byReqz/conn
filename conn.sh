@@ -38,7 +38,7 @@ while [ ! -z "$1" ]; do
       fping -m -e $2
       echo "-----------------------------------------------------"
       echo "-------------------Portscan---------------------"
-      nmap -Pn $2
+      nmap --reason -Pn $2
       fping -m -c 4 -A $2
       echo "------------------------------------------------"
       exit
@@ -55,7 +55,7 @@ while [ ! -z "$1" ]; do
       fping -6 -e $2
       echo "-----------------------------------------------------"
       echo "-------------------Portscan---------------------"
-      nmap -Pn -6 $2
+      nmap --reason -Pn -6 $2
       fping -6 -c 4 -A $2
       echo "------------------------------------------------"
       exit
@@ -66,7 +66,7 @@ while [ ! -z "$1" ]; do
       fping -4 -e $2
       echo "-----------------------------------------------------"
       echo "-------------------Portscan---------------------"
-      nmap -Pn $2
+      nmap --reason -Pn $2
       fping -6 -c 4 -A $2
       echo "------------------------------------------------"
       exit
@@ -83,7 +83,7 @@ while [ ! -z "$1" ]; do
          read portscan
          if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
             echo "-------------------Portscan---------------------"
-            nmap -Pn $2
+            nmap --reason -Pn $2
             fping -m -c 4 -A $2
             echo "------------------------------------------------"
             exit
@@ -101,7 +101,7 @@ while [ ! -z "$1" ]; do
          read portscan
          if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
             echo "-------------------Portscan---------------------"
-            nmap -Pn -6 $1
+            nmap --reason -Pn -6 $1
             fping -6 -c 4 -A $1
             echo "------------------------------------------------"
          else
@@ -129,7 +129,7 @@ while [ ! -z "$1" ]; do
          read portscan
          if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
             echo "-------------------Portscan---------------------"
-            nmap -Pn $1
+            nmap --reason -Pn $1
             fping -m -c 4 -A $1
             echo "------------------------------------------------"
             exit
