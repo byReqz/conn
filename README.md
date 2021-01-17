@@ -20,3 +20,19 @@ Options: <br>
  -n/--no -- dont portscan <br>
  -p/--portscan -- same as -y <br>
  -w/--wait -- wait for active connection <br>
+
+# installation
+1. download the script: <br>
+```bash
+wget https://git.byreqz.de/byreqz/conn/raw/branch/main/conn.sh
+```
+2. run it with <br>
+``
+bash conn.sh
+``
+or <br>
+``
+chmod +x && ./conn.sh
+``
+3. optionally alias it <br>
+``alias conn="~/conn.sh"``
