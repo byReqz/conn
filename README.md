@@ -1,13 +1,13 @@
 # conn
-quick and dirty server availability check <br>
-### features: <br>
+quick and dirty server availability check <br> <br>
+basically just a way too complex wrapper for nmap and fping <br>
+
+### features: 
 - multi-input detection
 - ipv4 input detection
 - ipv6 input detection
 - waiting for availability
 - send notification on availability
-
-requires fping and nmap (and bash)
 
 # usage
 Usage: conn (options) [ip] <br>
