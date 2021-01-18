@@ -78,7 +78,7 @@ while [ ! -z "$1" ]; do
       echo "checking connection status for $2"
       while [[ "$(fping -m -q -u $2)" == "$2" ]]; do :
          done
-      notify-send "$2 is now reachable" -u normal -t 8000 -a conn
+      notify-send "$2 is now reachable" -u normal -t 15000 -a conn
       echo "-------------------Availability----------------------"
       fping -e $2
       echo "-----------------------------------------------------"
