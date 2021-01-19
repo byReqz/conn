@@ -8,6 +8,7 @@ basically just a way too complex wrapper for nmap and fping <br>
 - ipv6 input detection
 - waiting for availability
 - send notification on availability
+- updater built in
 
 # usage
 Usage: conn (options) [ip] <br>
@@ -20,6 +21,7 @@ Options: <br>
  -n/--no -- dont portscan <br>
  -p/--portscan -- same as -y <br>
  -w/--wait -- wait for active connection <br>
+ -u/--update -- update the script <br>
 
 # installation
 1. download the script: <br>
