@@ -1,5 +1,5 @@
 #!/bin/bash
-version=20
+version=21
 if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) > "$version" ]] && [[ -z $1 ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) > "$version" ]] && [[ $1 != "--update" ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) > "$version" ]] && [[ $1 != "-u" ]];then
   echo "#############################################"
   echo -e "\e[4mnote: newer version detected, use -u to update\e[0m"
@@ -88,7 +88,7 @@ fi
            echo -e "\e[4mscript has been updated to the newest version\e[0m"
            echo "#############################################"
            exit
-         elif [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) < "$version" ]];then
+         elif (( $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) <= "$version" ));then
            echo "#############################################"
            echo "no newer version found"
            echo "#############################################"
