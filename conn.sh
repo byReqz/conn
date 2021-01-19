@@ -1,5 +1,5 @@
 #!/bin/bash
-version=19
+version=20
 if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) > "$version" ]] && [[ -z $1 ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) > "$version" ]] && [[ $1 != "--update" ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) > "$version" ]] && [[ $1 != "-u" ]];then
   echo "#############################################"
   echo -e "\e[4mnote: newer version detected, use -u to update\e[0m"
