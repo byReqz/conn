@@ -1,6 +1,6 @@
 #!/bin/bash
-version=21
-if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) > "$version" ]] && [[ -z $1 ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) > "$version" ]] && [[ $1 != "--update" ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) > "$version" ]] && [[ $1 != "-u" ]];then
+
+if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/conn.sh | md5sum | cut -c -32) != $(md5sum $0 | cut -c -32) ]] && [[ -z $1 ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/conn.sh | md5sum | cut -c -32) != $(md5sum $0 | cut -c -32) ]] && [[ $1 != "--update" ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/conn.sh | md5sum | cut -c -32) != $(md5sum $0 | cut -c -32) ]] && [[ $1 != "-u" ]];then
   echo "#############################################"
   echo -e "\e[4mnote: newer version detected, use -u to update\e[0m"
   echo "#############################################"
@@ -82,13 +82,13 @@ fi
          echo "------------------------------------------------"
          exit
       elif [[ $1 == "-u" ]] || [[ "$1" == "--update" ]];then
-         if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) > "$version" ]];then
+         if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/conn.sh | md5sum | cut -c -32) != $(md5sum $0 | cut -c -32) ]];then
            wget -O $0 --quiet "https://raw.githubusercontent.com/byReqz/conn/main/conn.sh"
            echo "#############################################"
            echo -e "\e[4mscript has been updated to the newest version\e[0m"
            echo "#############################################"
            exit
-         elif (( $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/version) <= "$version" ));then
+         elif [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/conn.sh | md5sum | cut -c -32) = $(md5sum $0 | cut -c -32) ]];then
            echo "#############################################"
            echo "no newer version found"
            echo "#############################################"
