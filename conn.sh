@@ -42,6 +42,13 @@ fi
          exit
       elif [[ $1 == "-y" ]] || [[ $1 == "-p" ]] || [[ "$1" == "--portscan" ]] || [[ "$1" == "--yes" ]];then
          echo "checking connection status for $2"
+          if [[ -n $(nmap -p22 $1 | grep open) ]] && [[ -z $(nmap -p222 $1 | grep open) ]];then
+            echo "note: system seems to be a linux machine"
+            echo ""
+         elif [[ -n $(nmap -p3389 $1 | grep open) ]];then
+            echo "note: system seems to be a windows server machine"
+            echo ""
+         fi
          echo "-------------------Availability----------------------"
          fping -e $2
          echo "-----------------------------------------------------"
@@ -53,6 +60,13 @@ fi
          exit
       elif [[ $1 == "-n" ]] || [[ "$1" == "--no" ]];then
          echo "checking connection status for $2"
+         if [[ -n $(nmap -p22 $1 | grep open) ]] && [[ -z $(nmap -p222 $1 | grep open) ]];then
+            echo "note: system seems to be a linux machine"
+            echo ""
+         elif [[ -n $(nmap -p3389 $1 | grep open) ]];then
+            echo "note: system seems to be a windows server machine"
+            echo ""
+         fi
          echo "-------------------Availability----------------------"
          fping -e $2
          echo "-----------------------------------------------------"
@@ -60,6 +74,13 @@ fi
       elif [[ $1 == "-6" ]] || [[ "$1" == "--force-ipv6" ]];then
          echo "-6 used, forcing IPv6 portscanning"
          echo "checking connection status for $2"
+         if [[ -n $(nmap -6 -p22 $1 | grep open) ]] && [[ -z $(nmap -6 -p222 $1 | grep open) ]];then
+            echo "note: system seems to be a linux machine"
+            echo ""
+         elif [[ -n $(nmap -6 -p3389 $1 | grep open) ]];then
+            echo "note: system seems to be a windows server machine"
+            echo ""
+         fi
          echo "-------------------Availability----------------------"
          fping -6 -e $2
          echo "-----------------------------------------------------"
@@ -72,6 +93,13 @@ fi
       elif [[ $1 == "-4" ]] || [[ "$1" == "--force-ipv4" ]];then
          echo "-4 used, forcing IPv4 portscanning"
          echo "checking connection status for $2"
+         if [[ -n $(nmap -p22 $1 | grep open) ]] && [[ -z $(nmap -p222 $1 | grep open) ]];then
+            echo "note: system seems to be a linux machine"
+            echo ""
+         elif [[ -n $(nmap -p3389 $1 | grep open) ]];then
+            echo "note: system seems to be a windows server machine"
+            echo ""
+         fi
          echo "-------------------Availability----------------------"
          fping -4 -e $2
          echo "-----------------------------------------------------"
@@ -97,9 +125,21 @@ fi
       elif [[ "$1" == "-w" ]] || [[ "$1" == "--wait" ]];then
          echo "-w used, waiting for active connection"
          echo "checking connection status for $2"
+         if [[ -n $(nmap -p22 $1 | grep open) ]] && [[ -z $(nmap -p222 $1 | grep open) ]];then
+            echo "note: system seems to be a linux machine"
+            echo ""
+         elif [[ -n $(nmap -p3389 $1 | grep open) ]];then
+            echo "note: system seems to be a windows server machine, it might not respond to icmp"
+            echo ""
+         fi
          while [[ "$(fping -m -q -u $2)" == "$2" ]]; do :
             done
          notify-send "$2 is now reachable" -u normal -t 15000 -a conn
+         if [[ -n $(nmap -p22 $1 | grep open) ]] && [[ -z $(nmap -p222 $1 | grep open) ]];then
+            notify-send "$2 seems to be booted into a linux install" -t 15000 -a conn -u normal
+         elif [[ -n $(nmap -p3389 $1 | grep open) ]];then
+            notify-send "$2 seems to be booted into a windows install" -t 15000 -a conn -u normal
+         fi
          echo "-------------------Availability----------------------"
          fping -e $2
          echo "-----------------------------------------------------"
@@ -119,6 +159,13 @@ fi
       elif [[ ! "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ "$1" =~ [:] ]] && [[ ! "$2" =~ [:] ]] && [[ -z "$3" ]];then
          echo "detected IPv6 adress -> using -6"
          echo "checking connection status for $1"
+         if [[ -n $(nmap -6 -p22 $1 | grep open) ]] && [[ -z $(nmap -6 -p222 $1 | grep open) ]];then
+            echo "note: system seems to be a linux machine"
+            echo ""
+         elif [[ -n $(nmap -6 -p3389 $1 | grep open) ]];then
+            echo "note: system seems to be a windows server machine"
+            echo ""
+         fi
          echo "-------------------Availability----------------------"
          fping -6 -e $1
          echo "-----------------------------------------------------"
@@ -148,6 +195,13 @@ fi
          exit
       else
          echo "checking connection status for $1"
+         if [[ -n $(nmap -p22 $1 | grep open) ]] && [[ -z $(nmap -p222 $1 | grep open) ]];then
+            echo "note: system seems to be a linux machine"
+            echo ""
+         elif [[ -n $(nmap -p3389 $1 | grep open) ]];then
+            echo "note: system seems to be a windows server machine"
+            echo ""
+         fi
          echo "-------------------Availability----------------------"
          fping -e $1
          echo "-----------------------------------------------------"
