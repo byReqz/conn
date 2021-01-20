@@ -44,6 +44,11 @@ fi
          echo "checking connection status for $2"
          echo "-------------------Availability----------------------"
          fping -e $2
+         if [[ -n $(nping -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a windows machine which does not respond to ICMP"
+         elif [[ -n $(nping -q1 -c1 -p22 $2 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a linux machine"
+         fi
          echo "-----------------------------------------------------"
          echo "-------------------Portscan---------------------"
          nmap --reason -Pn $2
@@ -55,6 +60,11 @@ fi
          echo "checking connection status for $2"
          echo "-------------------Availability----------------------"
          fping -e $2
+         if [[ -n $(nping -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a windows machine which does not respond to ICMP"
+         elif [[ -n $(nping -q1 -c1 -p22 $2 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a linux machine"
+         fi
          echo "-----------------------------------------------------"
          exit
       elif [[ $1 == "-6" ]] || [[ "$1" == "--force-ipv6" ]];then
@@ -62,6 +72,11 @@ fi
          echo "checking connection status for $2"
          echo "-------------------Availability----------------------"
          fping -6 -e $2
+         if [[ -n $(nping -6 -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a windows machine which does not respond to ICMP"
+         elif [[ -n $(nping -6 -q1 -c1 -p22 $2 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a linux machine"
+         fi
          echo "-----------------------------------------------------"
          echo "-------------------Portscan---------------------"
          nmap --reason -Pn -6 $2
@@ -74,6 +89,11 @@ fi
          echo "checking connection status for $2"
          echo "-------------------Availability----------------------"
          fping -4 -e $2
+         if [[ -n $(nping -4 -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a windows machine which does not respond to ICMP"
+         elif [[ -n $(nping -4 -q1 -c1 -p22 $2 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a linux machine"
+         fi
          echo "-----------------------------------------------------"
          echo "-------------------Portscan---------------------"
          nmap --reason -Pn $2
@@ -102,6 +122,13 @@ fi
          notify-send "$2 is now reachable" -u normal -t 15000 -a conn
          echo "-------------------Availability----------------------"
          fping -e $2
+         if [[ -n $(nping -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a windows machine which does not respond to ICMP"
+            notify-send "$2 seems to be a windows machine" -u normal -t 15000 -a conn
+         elif [[ -n $(nping -q1 -c1 -p22 $2 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a linux machine"
+            notify-send "$2 seems to be a linux machine" -u normal -t 15000 -a conn
+         fi
          echo "-----------------------------------------------------"
          echo "portscan? (y/n) (default: y)"
             read portscan
@@ -121,6 +148,11 @@ fi
          echo "checking connection status for $1"
          echo "-------------------Availability----------------------"
          fping -6 -e $1
+         if [[ -n $(nping -6 -q1 -c1 -p135 $1 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a windows machine which does not respond to ICMP"
+         elif [[ -n $(nping -6 -q1 -c1 -p22 $1 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a linux machine"
+         fi
          echo "-----------------------------------------------------"
          echo "portscan? (y/n) (default: y)"
             read portscan
@@ -150,6 +182,11 @@ fi
          echo "checking connection status for $1"
          echo "-------------------Availability----------------------"
          fping -e $1
+         if [[ -n $(nping -q1 -c1 -p135 $1 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a windows machine which does not respond to ICMP"
+         elif [[ -n $(nping -q1 -c1 -p22 $1 | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a linux machine"
+         fi
          echo "-----------------------------------------------------"
          echo "portscan? (y/n) (default: y)"
             read portscan
