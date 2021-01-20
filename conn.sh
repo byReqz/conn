@@ -60,7 +60,6 @@ fi
       elif [[ $1 == "-6" ]] || [[ "$1" == "--force-ipv6" ]];then
          echo "-6 used, forcing IPv6 portscanning"
          echo "checking connection status for $2"
-         fi
          echo "-------------------Availability----------------------"
          fping -6 -e $2
          echo "-----------------------------------------------------"
@@ -120,7 +119,6 @@ fi
       elif [[ ! "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ "$1" =~ [:] ]] && [[ ! "$2" =~ [:] ]] && [[ -z "$3" ]];then
          echo "detected IPv6 adress -> using -6"
          echo "checking connection status for $1"
-         fi
          echo "-------------------Availability----------------------"
          fping -6 -e $1
          echo "-----------------------------------------------------"
