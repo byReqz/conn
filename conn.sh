@@ -44,9 +44,15 @@ fi
       elif [[ $1 == "-y" ]] || [[ $1 == "-p" ]] || [[ "$1" == "--portscan" ]] || [[ "$1" == "--yes" ]];then
          echo "checking connection status for $2"
          fping=$(fping -a $2)
-         if [[ $fping != "$2" ]] && [[ -n $(nping -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]] || [[ $fping == "$2" ]] && [[ -n $(nping -q1 -c1 -p3389 $2 | grep "Successful connections: 1") ]];then
+         p135=$(nping -q1 -c1 -p135 $2)
+         p3389=$(nping -q1 -c1 -p3389 $2)
+         if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a windows machine which does not respond to ICMP"
+            echo "-----------------------------------------------------"
+         elif [[ $fping != "$2" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping == "$2" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
+            echo "-------------------Availability----------------------"
+            echo "$2 is not reachable"
             echo "-----------------------------------------------------"
          else
             echo "-------------------Availability----------------------"
@@ -55,7 +61,7 @@ fi
             if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
                echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this seems to be in the rescue system"
+               echo "note: this machine seems to be in the rescue system"
             fi
             echo "-----------------------------------------------------"
 	      fi
@@ -67,9 +73,15 @@ fi
          exit
       elif [[ $1 == "-n" ]] || [[ "$1" == "--no" ]];then
          fping=$(fping -a $2)
-         if [[ $fping != "$2" ]] && [[ -n $(nping -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]] || [[ $fping == "$2" ]] && [[ -n $(nping -q1 -c1 -p3389 $2 | grep "Successful connections: 1") ]];then
+         p135=$(nping -q1 -c1 -p135 $2)
+         p3389=$(nping -q1 -c1 -p3389 $2)
+         if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a windows machine which does not respond to ICMP"
+            echo "-----------------------------------------------------"
+         elif [[ $fping != "$2" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping == "$2" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
+            echo "-------------------Availability----------------------"
+            echo "$2 is not reachable"
             echo "-----------------------------------------------------"
          else
             echo "-------------------Availability----------------------"
@@ -78,7 +90,7 @@ fi
             if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
                echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this seems to be in the rescue system"
+               echo "note: this machine seems to be in the rescue system"
             fi
             echo "-----------------------------------------------------"
 	      fi
@@ -87,9 +99,15 @@ fi
          echo "-6 used, forcing IPv6 portscanning"
          echo "checking connection status for $2"
          fping=$(fping -6 -a $2)
-         if [[ $fping != "$2" ]] && [[ -n $(nping -6 -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]] || [[ $fping == "$2" ]] && [[ -n $(nping -6 -q1 -c1 -p3389 $2 | grep "Successful connections: 1") ]];then
+         p135=$(nping -6 -q1 -c1 -p135 $2)
+         p3389=$(nping -6 -q1 -c1 -p3389 $2)
+         if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a windows machine which does not respond to ICMP"
+            echo "-----------------------------------------------------"
+         elif [[ $fping != "$2" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping == "$2" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
+            echo "-------------------Availability----------------------"
+            echo "$2 is not reachable"
             echo "-----------------------------------------------------"
          else
             echo "-------------------Availability----------------------"
@@ -98,7 +116,7 @@ fi
             if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
                echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this seems to be in the rescue system"
+               echo "note: this machine seems to be in the rescue system"
             fi
             echo "-----------------------------------------------------"
 	      fi
@@ -112,9 +130,15 @@ fi
          echo "-4 used, forcing IPv4 portscanning"
          echo "checking connection status for $2"
          fping=$(fping -4 -a $2)
-         if [[ $fping != "$2" ]] && [[ -n $(nping -4 -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]] || [[ $fping == "$2" ]] && [[ -n $(nping -4 -q1 -c1 -p3389 $2 | grep "Successful connections: 1") ]];then
+         p135=$(nping -4 -q1 -c1 -p135 $2)
+         p3389=$(nping -4 -q1 -c1 -p3389 $2)
+         if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a windows machine which does not respond to ICMP"
+            echo "-----------------------------------------------------"
+         elif [[ $fping != "$2" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping == "$2" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
+            echo "-------------------Availability----------------------"
+            echo "$2 is not reachable"
             echo "-----------------------------------------------------"
          else
             echo "-------------------Availability----------------------"
@@ -123,7 +147,7 @@ fi
             if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
                echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this seems to be in the rescue system"
+               echo "note: this machine seems to be in the rescue system"
             fi
             echo "-----------------------------------------------------"
 	      fi
@@ -150,7 +174,9 @@ fi
          echo "-w used, waiting for active connection"
          echo "checking connection status for $2"
          fping=$(fping -a $2)
-         if [[ $fping != "$2" ]] && [[ -n $(nping -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]] || [[ $fping == "$2" ]] && [[ -n $(nping -q1 -c1 -p3389 $2 | grep "Successful connections: 1") ]];then
+         p135=$(nping -q1 -c1 -p135 $2)
+         p3389=$(nping -q1 -c1 -p3389 $2)
+         if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a windows machine which does not respond to ICMP"
             notify-send "$2 is now reachable" "and seems to be a windows machine" -u normal -t 15000 -a conn
@@ -166,7 +192,7 @@ fi
                echo "note: this seems to be a linux machine"
                notify-send "$2 is now reachable" "and seems to be in a linux system" -u normal -t 15000 -a conn
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this seems to be in the rescue system"
+               echo "note: this machine seems to be in the rescue system"
                notify-send "$2 is now reachable" "and seems to be in the rescue system" -u normal -t 15000 -a conn
             fi
             echo "-----------------------------------------------------"
@@ -188,9 +214,15 @@ fi
          echo "detected IPv6 adress -> using -6"
          echo "checking connection status for $1"
          fping=$(fping -6 -a $1)
-         if [[ $fping != "$1" ]] && [[ -n $(nping -6 -q1 -c1 -p135 $1 | grep "Successful connections: 1") ]] || [[ $fping == "$1" ]] && [[ -n $(nping -6 -q1 -c1 -p3389 $1 | grep "Successful connections: 1") ]];then
+         p135=$(nping -6 -q1 -c1 -p135 $1)
+         p3389=$(nping -6 -q1 -c1 -p3389 $1)
+         if [[ $fping != "$1" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$1" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a windows machine which does not respond to ICMP"
+            echo "-----------------------------------------------------"
+         elif [[ $fping != "$1" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping == "$1" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
+            echo "-------------------Availability----------------------"
+            echo "$2 is not reachable"
             echo "-----------------------------------------------------"
          else
             echo "-------------------Availability----------------------"
@@ -199,7 +231,7 @@ fi
             if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
                echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this seems to be in the rescue system"
+               echo "note: this machine seems to be in the rescue system"
             fi
             echo "-----------------------------------------------------"
 	      fi
@@ -230,9 +262,15 @@ fi
       else
          echo "checking connection status for $1"
          fping=$(fping -a $1)
-         if [[ $fping != "$1" ]] && [[ -n $(nping -q1 -c1 -p135 $1 | grep "Successful connections: 1") ]] || [[ $fping == "$1" ]] && [[ -n $(nping -q1 -c1 -p3389 $1 | grep "Successful connections: 1") ]];then
+         p135=$(nping -q1 -c1 -p135 $1)
+         p3389=$(nping -q1 -c1 -p3389 $1)
+         if [[ $fping != "$1" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$1" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a windows machine which does not respond to ICMP"
+            echo "-----------------------------------------------------"
+         elif [[ $fping != "$1" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$1" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
+            echo "-------------------Availability----------------------"
+            echo "$1 is not reachable"
             echo "-----------------------------------------------------"
          else
             echo "-------------------Availability----------------------"
@@ -241,7 +279,7 @@ fi
             if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
                echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this seems to be in the rescue system"
+               echo "note: this machine seems to be in the rescue system"
             fi
             echo "-----------------------------------------------------"
 	      fi
