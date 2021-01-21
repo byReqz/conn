@@ -22,6 +22,8 @@ Options: <br>
  -p/--portscan -- same as -y <br>
  -w/--wait -- wait for active connection <br>
  -u/--update -- update the script <br>
+ -f/ --fast -- disable os check <br>
+ -s/ --simple -- same as -f <br>
 
 # installation
 1. download the script: <br>
