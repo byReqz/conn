@@ -19,6 +19,8 @@ fi
          echo " -p/--portscan -- same as -y"
          echo " -w/--wait -- wait for active connection"
          echo " -u/--update -- update the script to the newest version"
+         echo " -f/ --fast -- disable os check"
+         echo " -s/ --simple -- same as -f"
          exit
    done
    while [ ! -z "$1" ]; do
@@ -34,12 +36,26 @@ fi
          echo " -p/--portscan -- same as -y"
          echo " -w/--wait -- wait for active connection"
          echo " -u/--update -- update the script to the newest version"
+         echo " -f/ --fast -- disable os check"
+         echo " -s/ --simple -- same as -f"
          exit
       elif [[ $1 == "-m" ]] || [[ "$1" == "--multi" ]];then
          echo "multi-ip mode, portscan disabled"
          echo "-------------------Availability----------------------"
          fping -e $@
          echo "-----------------------------------------------------"
+         exit
+      elif [[ $1 == "-f" ]] || [[ "$1" == "--fast" ]] || [[ $1 == "-s" ]] || [[ "$1" == "--simple" ]];then
+         echo "$1 used, skipping os check"
+         echo "checking connection status for $2"
+         echo "-------------------Availability----------------------"
+         fping -e $2
+         echo "-----------------------------------------------------"
+         echo "-------------------Portscan---------------------"
+         nmap --reason -Pn $2
+         echo ""
+         fping -c 4 $2
+         echo "------------------------------------------------"
          exit
       elif [[ $1 == "-y" ]] || [[ $1 == "-p" ]] || [[ "$1" == "--portscan" ]] || [[ "$1" == "--yes" ]];then
          echo "checking connection status for $2"
