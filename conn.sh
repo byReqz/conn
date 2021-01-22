@@ -197,7 +197,7 @@ fi
          if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]] || [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a windows machine which does not respond to ICMP"
-            notify-send "$2 is now reachable" "and seems to be a windows machine" -u normal -t 15000 -a conn
+            notify-send "$2 is now reachable" "and seems to be a windows machine" -u normal -t 30000 -a conn
             echo "-----------------------------------------------------"
          else
             while [[ "$(fping -m -q -u $2)" == "$2" ]]; do :
@@ -207,12 +207,12 @@ fi
             rescue=$(nping -q1 -c1 -p22,222 $2)
             if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
                echo "note: this seems to be a linux machine"
-               notify-send "$2 is now reachable" "and seems to be in a linux system" -u normal -t 15000 -a conn
+               notify-send "$2 is now reachable" "and seems to be in a linux system" -u normal -t 30000 -a conn
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
                echo "note: this machine seems to be in the rescue system"
-               notify-send "$2 is now reachable" "and seems to be in the rescue system" -u normal -t 15000 -a conn
+               notify-send "$2 is now reachable" "and seems to be in the rescue system" -u normal -t 30000 -a conn
             else
-               notify-send "$2 is now reachable" -u normal -t 15000 -a conn
+               notify-send "$2 is now reachable" -u normal -t 30000 -a conn
             fi
             echo "-----------------------------------------------------"
 	      fi
@@ -238,7 +238,7 @@ fi
          if [[ $fping = "$2" ]];then
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a unix machine which does respond to ICMP"
-            notify-send "$2 is a unix machine" -u normal -t 15000 -a conn
+            notify-send "$2 is a unix machine" -u normal -t 30000 -a conn
             echo "-----------------------------------------------------"
          else
             while [[ -n $(nping -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]]; do :
@@ -247,9 +247,9 @@ fi
             rescue=$(nping -q1 -c1 -p22,222 $2)
             if [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
                echo "note: this machine seems to be in the rescue system"
-               notify-send "$2 is now reachable" "and seems to be in the rescue system" -u normal -t 15000 -a conn
+               notify-send "$2 is now reachable" "and seems to be in the rescue system" -u normal -t 30000 -a conn
             else
-               notify-send "$2 is now booted into windows" -u normal -t 15000 -a conn
+               notify-send "$2 is now booted into windows" -u normal -t 30000 -a conn
             fi
             echo "-----------------------------------------------------"
 	      fi
