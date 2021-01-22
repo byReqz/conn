@@ -36,7 +36,7 @@ bash conn.sh
 ``
 or <br>
 ``
-chmod +x && ./conn.sh
+chmod +x conn.sh && ./conn.sh
 ``
 3. optionally alias it <br>
 ``alias conn="~/conn.sh"``
