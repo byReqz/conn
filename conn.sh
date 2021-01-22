@@ -21,6 +21,7 @@ fi
          echo " -u/--update -- update the script to the newest version"
          echo " -f/ --fast -- disable os check"
          echo " -s/ --simple -- same as -f"
+         echo " -ww/ --wait-windows -- same as -w but for windows machines"
          exit
    done
    while [ ! -z "$1" ]; do
@@ -38,6 +39,7 @@ fi
          echo " -u/--update -- update the script to the newest version"
          echo " -f/ --fast -- disable os check"
          echo " -s/ --simple -- same as -f"
+         echo " -ww/ --wait-windows -- same as -w but for windows machines"
          exit
       elif [[ $1 == "-m" ]] || [[ "$1" == "--multi" ]];then
          echo "multi-ip mode, portscan disabled"
@@ -211,6 +213,43 @@ fi
                notify-send "$2 is now reachable" "and seems to be in the rescue system" -u normal -t 15000 -a conn
             else
                notify-send "$2 is now reachable" -u normal -t 15000 -a conn
+            fi
+            echo "-----------------------------------------------------"
+	      fi
+         echo "portscan? (y/n) (default: y)"
+            read portscan
+            if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
+               echo "-------------------Portscan---------------------"
+               nmap --reason -Pn $2
+               echo ""
+               fping -c 4 $2
+               echo "------------------------------------------------"
+               exit
+            else
+               exit
+            fi
+         exit
+      elif [[ "$1" == "-ww" ]] || [[ "$1" == "--wait-windows" ]];then
+         echo "-w used, waiting for active connection"
+         echo "checking connection status for $2"
+         fping=$(fping -a $2)
+         p135=$(nping -q1 -c1 -p135 $2)
+         p3389=$(nping -q1 -c1 -p3389 $2)
+         if [[ $fping = "$2" ]];then
+            echo "-------------------Availability----------------------"
+            echo "note: this seems to be a unix machine which does respond to ICMP"
+            notify-send "$2 is a unix machine" -u normal -t 15000 -a conn
+            echo "-----------------------------------------------------"
+         else
+            while [[ -n $(nping -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]]; do :
+               done
+            echo "-------------------Availability----------------------"
+            rescue=$(nping -q1 -c1 -p22,222 $2)
+            if [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
+               echo "note: this machine seems to be in the rescue system"
+               notify-send "$2 is now reachable" "and seems to be in the rescue system" -u normal -t 15000 -a conn
+            else
+               notify-send "$2 is now booted into windows" -u normal -t 15000 -a conn
             fi
             echo "-----------------------------------------------------"
 	      fi
