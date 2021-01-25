@@ -1,0 +1,24 @@
+name: gethash
+on:
+  push:
+    paths:
+      - '.github/workflows/main.yml'
+      - 'conn.sh'
+jobs:
+  gethash:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        
+      - name: get hash of script
+        run: echo $(md5sum conn.sh | cut -c -32) > hash
+        
+      - name: Commit hash
+        uses: EndBug/add-and-commit@v7
+        with:
+          author_name: actions
+          author_email: nils@byreqz.de
+          message: 'updated hash after commit'
+          add: 'hash'
+    
