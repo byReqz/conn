@@ -194,11 +194,17 @@ fi
          fping=$(fping -a $2)
          p135=$(nping -q1 -c1 -p135 $2)
          p3389=$(nping -q1 -c1 -p3389 $2)
-         if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]] || [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
+         if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a windows machine which does not respond to ICMP"
             notify-send "$2 is now reachable" "and seems to be a windows machine" -u normal -t 30000 -a conn
             echo "-----------------------------------------------------"
+         elif [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
+            echo "-------------------Availability----------------------"
+            echo "note: this seems to be a windows machine which does respond to ICMP"
+            fping -e $2
+            notify-send "$2 is now reachable" "and seems to be a windows machine" -u normal -t 30000 -a conn
+            echo "-----------------------------------------------------" 
          else
             while [[ "$(fping -m -q -u $2)" == "$2" ]]; do :
                done
@@ -235,13 +241,13 @@ fi
          fping=$(fping -a $2)
          p135=$(nping -q1 -c1 -p135 $2)
          p3389=$(nping -q1 -c1 -p3389 $2)
-         if [[ $fping = "$2" ]];then
+         if [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a unix machine which does respond to ICMP"
             notify-send "$2 is a unix machine" -u normal -t 30000 -a conn
             echo "-----------------------------------------------------"
          else
-            while [[ -n $(nping -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]]; do :
+            while [[ -z $(nping -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]]; do :
                done
             echo "-------------------Availability----------------------"
             rescue=$(nping -q1 -c1 -p22,222 $2)
