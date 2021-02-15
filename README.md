@@ -40,3 +40,31 @@ chmod +x conn.sh && ./conn.sh
 ``
 3. optionally alias it <br>
 ``alias conn="~/conn.sh"``
+
+# sample output
+```bash
+checking connection status for localhost
+-------------------Availability----------------------
+localhost is alive (545 ms)
+note: this seems to be a linux machine
+-----------------------------------------------------
+-------------------Portscan---------------------
+Starting Nmap 7.91 ( https://nmap.org ) at 2021-02-15 15:07 CET
+Nmap scan report for localhost (127.0.0.1)
+Host is up, received user-set (0.047s latency).
+Other addresses for localhost (not scanned): ::1
+Not shown: 998 closed ports
+Reason: 998 conn-refused
+PORT    STATE SERVICE REASON
+22/tcp  open  ssh     syn-ack
+631/tcp open  ipp     syn-ack
+Nmap done: 1 IP address (1 host up) scanned in 3.23 seconds
+
+localhost : [0], 64 bytes, 0.185 ms (0.185 avg, 0% loss)
+localhost : [1], 64 bytes, 0.058 ms (0.122 avg, 0% loss)
+localhost : [2], 64 bytes, 0.060 ms (0.101 avg, 0% loss)
+localhost : [3], 64 bytes, 0.081 ms (0.096 avg, 0% loss)
+
+localhost : xmt/rcv/%loss = 4/4/0%, min/avg/max = 0.058/0.096/0.185
+------------------------------------------------
+```
