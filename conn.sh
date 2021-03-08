@@ -115,6 +115,10 @@ fi
          exit
       elif [[ $1 == "-6" ]] || [[ "$1" == "--force-ipv6" ]];then
          echo "-6 used, forcing IPv6 portscanning"
+         if [[ "$2" =~ http ]];then
+            echo "url detected, exiting"
+            exit
+         fi
          echo "checking connection status for $2"
          fping=$(fping -6 -a $2)
          p135=$(nping -6 -q1 -c1 -p135 $2)
@@ -241,10 +245,15 @@ fi
          fping=$(fping -a $2)
          p135=$(nping -q1 -c1 -p135 $2)
          p3389=$(nping -q1 -c1 -p3389 $2)
-         if [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
+         if [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 0") ]];then
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a unix machine which does respond to ICMP"
             notify-send "$2 is a unix machine" -u normal -t 30000 -a conn
+            echo "-----------------------------------------------------"
+         elif [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
+            echo "-------------------Availability----------------------"
+            echo "note: this seems to be a windows machine which does respond to ICMP"
+            notify-send "$2 is a windows machine" -u normal -t 30000 -a conn
             echo "-----------------------------------------------------"
          else
             while [[ -z $(nping -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]]; do :
@@ -274,6 +283,10 @@ fi
             fi
          exit
       elif [[ ! "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ "$1" =~ [:] ]] && [[ ! "$2" =~ [:] ]] && [[ -z "$3" ]];then
+         if [[ "$1" =~ http ]];then
+            echo "url detected, exiting"
+            exit
+         fi
          echo "detected IPv6 adress -> using -6"
          echo "checking connection status for $1"
          fping=$(fping -6 -a $1)
