@@ -80,6 +80,8 @@ fi
                echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
                echo "note: this machine seems to be in the rescue system"
+            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+               echo "note: this machine seems to be booted into windows"
             fi
             echo "-----------------------------------------------------"
 	      fi
@@ -109,6 +111,8 @@ fi
                echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
                echo "note: this machine seems to be in the rescue system"
+            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+               echo "note: this machine seems to be booted into windows"
             fi
             echo "-----------------------------------------------------"
 	      fi
@@ -139,6 +143,8 @@ fi
                echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
                echo "note: this machine seems to be in the rescue system"
+            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+               echo "note: this machine seems to be booted into windows"
             fi
             echo "-----------------------------------------------------"
 	      fi
@@ -170,6 +176,8 @@ fi
                echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
                echo "note: this machine seems to be in the rescue system"
+            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+               echo "note: this machine seems to be booted into windows"
             fi
             echo "-----------------------------------------------------"
 	      fi
@@ -221,6 +229,9 @@ fi
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
                echo "note: this machine seems to be in the rescue system"
                notify-send "$2 is now reachable" "and seems to be in the rescue system" -u normal -t 30000 -a conn
+            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+               echo "note: this machine seems to be booted into windows"
+               notify-send "$2 is now reachable" "and seems to be booted into windows" -u normal -t 30000 -a conn
             else
                notify-send "$2 is now reachable" -u normal -t 30000 -a conn
             fi
@@ -308,6 +319,8 @@ fi
                echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
                echo "note: this machine seems to be in the rescue system"
+            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+               echo "note: this machine seems to be booted into windows"
             fi
             echo "-----------------------------------------------------"
 	      fi
@@ -356,6 +369,8 @@ fi
                echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
                echo "note: this machine seems to be in the rescue system"
+            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+               echo "note: this machine seems to be booted into windows"
             fi
             echo "-----------------------------------------------------"
 	      fi
