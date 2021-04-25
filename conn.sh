@@ -22,6 +22,8 @@ fi
          echo " -f/ --fast -- disable os check"
          echo " -s/ --simple -- same as -f"
          echo " -ww/ --wait-windows -- same as -w but for windows machines"
+         echo " -ht/ --http -- ping on port 80"
+         echo " -wh/ --wait-http -- wait for ping on port 80"
          exit
    done
    while [ ! -z "$1" ]; do
@@ -40,6 +42,8 @@ fi
          echo " -f/ --fast -- disable os check"
          echo " -s/ --simple -- same as -f"
          echo " -ww/ --wait-windows -- same as -w but for windows machines"
+         echo " -ht/ --http -- ping on port 80"
+         echo " -wh/ --wait-http -- wait for ping on port 80"
          exit
       elif [[ $1 == "-m" ]] || [[ "$1" == "--multi" ]];then
          echo "multi-ip mode, portscan disabled"
@@ -367,6 +371,52 @@ fi
          echo "-------------------Availability----------------------"
          fping -e -6 $@
          echo "-----------------------------------------------------"
+         exit
+      elif [[ "$1" == "-ht" ]] || [[ "$1" == "--http" ]];then
+         echo "checking connection status for $2"
+         fping=$(nping -c1 -p80 $2)
+         if [[ -n $(echo $fping | grep "Successful connections: 1") ]];then
+            echo "-------------------Availability----------------------"
+            echo "$2 is reachable via port 80"
+            echo "-----------------------------------------------------"
+         else
+            echo "-------------------Availability----------------------"
+            echo "$2 is not reachable via port 80"
+            echo "-----------------------------------------------------"
+	      fi
+         echo "portscan? (y/n) (default: y)"
+            read portscan
+            if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
+               echo "-------------------Portscan---------------------"
+               nmap --reason -Pn $2
+               echo ""
+               nping -c4 -p80 $2
+               echo "------------------------------------------------"
+               exit
+            else
+               exit
+            fi
+      elif [[ "$1" == "-wh" ]] || [[ "$1" == "--wait-http" ]];then
+         echo "-wh used, waiting for active connection"
+         echo "checking connection status for $2"
+         while [[ -z $(nping -c1 -p80 $2 | grep -e "Successful connections: 1") ]]; do :
+            done
+         echo "-------------------Availability----------------------"
+         echo "$2 is now reachable via port 80"
+         notify-send "$2 is now reachable via port 80" -u normal -t 30000 -a conn
+         echo "-----------------------------------------------------"
+         echo "portscan? (y/n) (default: y)"
+            read portscan
+            if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
+               echo "-------------------Portscan---------------------"
+               nmap --reason -Pn $2
+               echo ""
+               nping -c4 -p80 $2
+               echo "------------------------------------------------"
+               exit
+            else
+               exit
+            fi
          exit
       else
          echo "checking connection status for $1"
