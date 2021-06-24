@@ -48,7 +48,11 @@ fi
       elif [[ $1 == "-m" ]] || [[ "$1" == "--multi" ]];then
          echo "multi-ip mode, portscan disabled"
          echo "-------------------Availability----------------------"
+         shift
          fping -e $@
+         ptest=$(nping -c1 -p22,222,3389,135 $@ | grep -e "completed")
+         echo ""
+         echo "$ptest"
          echo "-----------------------------------------------------"
          exit
       elif [[ $1 == "-f" ]] || [[ "$1" == "--fast" ]] || [[ $1 == "-s" ]] || [[ "$1" == "--simple" ]];then
@@ -354,12 +358,18 @@ fi
          echo "multi-ip input detected, portscan disabled"
          echo "-------------------Availability----------------------"
          fping -e $@
+         ptest=$(nping -c1 -p22,222,3389,135 $@ | grep -e "completed")
+         echo ""
+         echo "$ptest"
          echo "-----------------------------------------------------"
          exit
       elif [[ ! "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ ! "$2" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ "$1" =~ [:] ]] && [[ "$2" =~ [:] ]] || [[ ! "$3" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ ! "$1" =~ [-] ]] && [[ ! "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ ! "$2" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ "$1" =~ [:] ]] && [[ "$2" =~ [:] ]];then
          echo "multi-ipv6 input detected, portscan disabled"
          echo "-------------------Availability----------------------"
          fping -e -6 $@
+         ptest=$(nping -6 -c1 -p22,222,3389,135 $@ | grep -e "completed")
+         echo ""
+         echo "$ptest"
          echo "-----------------------------------------------------"
          exit
       elif [[ "$1" == "-ht" ]] || [[ "$1" == "--http" ]];then
