@@ -72,11 +72,6 @@ fi
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a windows machine which does not respond to ICMP"
             echo "-----------------------------------------------------"
-         elif [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does respond to ICMP"
-            fping -e $2
-            echo "-----------------------------------------------------" 
          elif [[ $fping != "$2" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
             echo "-------------------Availability----------------------"
             echo "$2 is not reachable"
@@ -108,11 +103,6 @@ fi
             echo "-------------------Availability----------------------"
             echo "note: this seems to be a windows machine which does not respond to ICMP"
             echo "-----------------------------------------------------"
-         elif [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does respond to ICMP"
-            fping -e $2
-            echo "-----------------------------------------------------" 
          elif [[ $fping != "$2" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
             echo "-------------------Availability----------------------"
             echo "$2 is not reachable"
