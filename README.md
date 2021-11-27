@@ -1,4 +1,7 @@
 # conn
+
+__the script is actively being rewritten on this branch and might not be on a usable state right now__
+
 quick and dirty server availability check <br> <br>
 basically just a way too complex wrapper for nmap and fping <br>
 
