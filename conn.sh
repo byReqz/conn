@@ -56,14 +56,13 @@ function run_update {
 
 function prepare {
   #check_update
-  get_args $@
+  get_args "$@"
   set_argvars $args
   validate $input
 }
 
 function get_args {
-  input=$(echo "$@")
-  echo $input
+  input=$(echo " $@")
   args=$(echo "$input" | grep -o -e "-h" -e "--help" -e "-6" -e "--force-ipv6" -e "-4" -e "--force-ipv4" -e "-y" -e "--yes" -e "-n" -e "--no" -e "-w" -e "--wait" -e "-u" -e "--update" -e "-f" -e "--fast" -e "-s" -e "--simple" | xargs)
   for arg in $args; do
     input=$(echo "$input" | sed "s/$arg//g")
