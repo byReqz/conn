@@ -63,6 +63,7 @@ function prepare {
 
 function get_args {
   input=$(echo "$@")
+  echo $input
   args=$(echo "$input" | grep -o -e "-h" -e "--help" -e "-6" -e "--force-ipv6" -e "-4" -e "--force-ipv4" -e "-y" -e "--yes" -e "-n" -e "--no" -e "-w" -e "--wait" -e "-u" -e "--update" -e "-f" -e "--fast" -e "-s" -e "--simple" | xargs)
   for arg in $args; do
     input=$(echo "$input" | sed "s/$arg//g")
@@ -80,10 +81,10 @@ function get_args {
 
 function set_argvars {
   if [[ $@ =~ -6 ]] || [[ $@ =~ --force-ipv6 ]];then
-    only6=true
+    only="-6"
   fi
   if [[ $@ =~ -4 ]] || [[ $@ =~ --force-ipv4 ]];then
-    only4=true
+    only="-4"
   fi
   if [[ $@ =~ -y ]] || [[ $@ =~ --yes ]];then
     doportscan=true
@@ -115,7 +116,66 @@ function validate {
 }
 
 function main {
-  true
+  if [[ $simpleoutput == true ]] && [[ -n $hosts ]];then
+    echo "-------------------Availability----------------------"
+    fping $only -e $@
+    quickport=$(nping $only -c1 -p22,222,3389,135 $@ | grep -e "completed")
+    if [[ -n $quickport ]];then
+      echo ""
+      echo "$quickport"
+    fi
+    echo "-----------------------------------------------------"
+  else
+    for host in $hosts;do
+      echo "checking connection status for $host"
+      fping=$(fping $only -a $host)
+      if [[ ! $oscheck == false ]];then
+        p135=$(nping $only -q1 -c1 -p135 $host)
+        p3389=$(nping $only -q1 -c1 -p3389 $host)
+      fi
+      if [[ $fping != "$host" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$host" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+        echo "-------------------Availability----------------------"
+        echo "note: this seems to be a windows machine which does not respond to ICMP"
+        echo "-----------------------------------------------------"
+      elif [[ $fping != "$host" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$host" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
+        echo "-------------------Availability----------------------"
+        echo "$host is not reachable"
+        echo "-----------------------------------------------------"
+      else
+        echo "-------------------Availability----------------------"
+        fping $only -e $host
+        if [[ ! $oscheck == false ]];then
+          rescue=$(nping $only -q1 -c1 -p22,222 $host)
+          if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a linux machine"
+          elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
+            echo "note: this machine seems to be in the rescue system"
+          elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+            echo "note: this machine seems to be booted into windows"
+          fi
+        fi
+        echo "-----------------------------------------------------"
+      fi
+      if [[ ! $doportscan == false ]];then
+        if [[ $doportscan == true ]];then
+          portscan=y
+        else
+          echo "portscan? (y/n) (default: y)"
+          read portscan
+        fi
+        if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
+          echo "-------------------Portscan---------------------"
+          nmap $only --reason -Pn $host
+          echo ""
+          fping $only -c 4 $host
+          echo "------------------------------------------------"
+          exit
+        else
+          echo ""
+        fi
+      fi
+    done
+  fi
 }
 
 if [[ -n $1 ]];then
