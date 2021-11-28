@@ -58,6 +58,7 @@ function prepare {
   #check_update
   get_args $@
   set_argvars $args
+  validate $input
 }
 
 function get_args {
@@ -81,6 +82,36 @@ function set_argvars {
   if [[ $@ =~ -6 ]] || [[ $@ =~ --force-ipv6 ]];then
     only6=true
   fi
+  if [[ $@ =~ -4 ]] || [[ $@ =~ --force-ipv4 ]];then
+    only4=true
+  fi
+  if [[ $@ =~ -y ]] || [[ $@ =~ --yes ]];then
+    doportscan=true
+  fi
+  if [[ $@ =~ -n ]] || [[ $@ =~ --no ]];then
+    doportscan=false
+  fi
+  if [[ $@ =~ -s ]] || [[ $@ =~ --simple ]];then
+    simpleoutput=true
+  fi
+  if [[ $@ =~ -w ]] || [[ $@ =~ --wait ]];then
+    waitcheck=true
+  fi
+  if [[ $@ =~ -f ]] || [[ $@ =~ --fast ]];then
+    oscheck=false
+  fi
+}
+
+function validate {
+  for arg in $@; do
+    if $(ip route show "$arg" 2&> /dev/null);then
+      hosts="$hosts $arg"
+    elif $(nslookup "$arg" > /dev/null);then
+      hosts="$hosts $arg"
+    else
+      echo "invalid input: $arg"
+    fi
+  done
 }
 
 function main {
@@ -88,8 +119,8 @@ function main {
 }
 
 if [[ -n $1 ]];then
-  prepare $@
-  main "$input"
+  prepare "$@"
+  main "$hosts"
 elif [[ "$1" == "-u" ]];then
   run_update
 elif [[ "$1" == "-h" ]];then
