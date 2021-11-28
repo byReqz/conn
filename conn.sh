@@ -126,34 +126,77 @@ function main {
     echo "-----------------------------------------------------"
   else
     for host in $hosts;do
-      echo "checking connection status for $host"
-      fping=$(fping $only -a $host)
-      if [[ ! $oscheck == false ]];then
-        p135=$(nping $only -q1 -c1 -p135 $host)
-        p3389=$(nping $only -q1 -c1 -p3389 $host)
-      fi
-      if [[ $fping != "$host" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$host" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-        echo "-------------------Availability----------------------"
-        echo "note: this seems to be a windows machine which does not respond to ICMP"
-        echo "-----------------------------------------------------"
-      elif [[ $fping != "$host" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$host" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
-        echo "-------------------Availability----------------------"
-        echo "$host is not reachable"
-        echo "-----------------------------------------------------"
-      else
-        echo "-------------------Availability----------------------"
-        fping $only -e $host
+      if [[ $waitcheck == true ]];then
+        echo "-w used, waiting for active connection"
+        echo "checking connection status for $host"
+        fping=$(fping $only -a $host)
         if [[ ! $oscheck == false ]];then
-          rescue=$(nping $only -q1 -c1 -p22,222 $host)
+          p135=$(nping $only -q1 -c1 -p135 $host)
+          p3389=$(nping $only -q1 -c1 -p3389 $host)
+        fi
+        if [[ $fping != "$host" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$host" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+          echo "-------------------Availability----------------------"
+          echo "note: this seems to be a windows machine which does not respond to ICMP"
+          notify-send "$host is now reachable" "and seems to be a windows machine" -u normal -t 30000 -a conn
+          echo "-----------------------------------------------------"
+        elif [[ $fping = "$host" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
+          echo "-------------------Availability----------------------"
+          echo "note: this seems to be a windows machine which does respond to ICMP"
+          fping -e $host
+          notify-send "$host is now reachable" "and seems to be a windows machine" -u normal -t 30000 -a conn
+          echo "-----------------------------------------------------" 
+        else
+          while [[ "$(fping $only -m -q -u $host)" == "$host" ]]; do :
+            done
+          echo "-------------------Availability----------------------"
+          fping -e $host
+          if [[ ! $oscheck == false ]];then
+            rescue=$(nping $only -q1 -c1 -p22,222 $host)
+          fi
           if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
             echo "note: this seems to be a linux machine"
+            notify-send "$host is now reachable" "and seems to be in a linux system" -u normal -t 30000 -a conn
           elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
             echo "note: this machine seems to be in the rescue system"
+            notify-send "$host is now reachable" "and seems to be in the rescue system" -u normal -t 30000 -a conn
           elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
             echo "note: this machine seems to be booted into windows"
+            notify-send "$host is now reachable" "and seems to be booted into windows" -u normal -t 30000 -a conn
+          else
+            notify-send "$host is now reachable" -u normal -t 30000 -a conn
           fi
+          echo "-----------------------------------------------------"
         fi
-        echo "-----------------------------------------------------"
+      else
+        echo "checking connection status for $host"
+        fping=$(fping $only -a $host)
+        if [[ ! $oscheck == false ]];then
+          p135=$(nping $only -q1 -c1 -p135 $host)
+          p3389=$(nping $only -q1 -c1 -p3389 $host)
+        fi
+        if [[ $fping != "$host" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$host" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+          echo "-------------------Availability----------------------"
+          echo "note: this seems to be a windows machine which does not respond to ICMP"
+          echo "-----------------------------------------------------"
+        elif [[ $fping != "$host" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$host" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
+          echo "-------------------Availability----------------------"
+          echo "$host is not reachable"
+          echo "-----------------------------------------------------"
+        else
+          echo "-------------------Availability----------------------"
+          fping $only -e $host
+          if [[ ! $oscheck == false ]];then
+            rescue=$(nping $only -q1 -c1 -p22,222 $host)
+            if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
+              echo "note: this seems to be a linux machine"
+            elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
+              echo "note: this machine seems to be in the rescue system"
+            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+              echo "note: this machine seems to be booted into windows"
+            fi
+          fi
+          echo "-----------------------------------------------------"
+        fi
       fi
       if [[ ! $doportscan == false ]];then
         if [[ $doportscan == true ]];then
@@ -168,7 +211,7 @@ function main {
           echo ""
           fping $only -c 4 $host
           echo "------------------------------------------------"
-          exit
+          echo ""
         else
           echo ""
         fi
