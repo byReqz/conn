@@ -15,7 +15,7 @@ arguments:
   -w / --wait       wait for active connection
   -u / --update     update the script
   -f / --fast       disable os check
-  -s / --simple     simplyfy output"
+  -s / --simple     simplify output"
 
 show_notfound="[error] argument not found
 
@@ -30,17 +30,72 @@ available arguments:
   -f / --fast       disable os check
   -s / --simple     simplify output"
 
+function check_update {
+  if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]] && [[ -z $1 ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]] && [[ $1 != "--update" ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]] && [[ $1 != "-u" ]];then
+    echo "#############################################"
+    echo -e "\e[4mnote: newer version detected, use -u to update\e[0m"
+    echo "#############################################"
+    echo ""
+  fi
+}
+
+function run_update {
+  if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]];then
+    wget -O $0 --quiet "https://raw.githubusercontent.com/byReqz/conn/main/conn.sh"
+    echo "#############################################"
+    echo -e "\e[4mscript has been updated to the newest version\e[0m"
+    echo "#############################################"
+    exit
+  elif [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) = $(md5sum $0 | cut -c -32) ]];then
+    echo "#############################################"
+    echo "no newer version found"
+    echo "#############################################"
+    exit
+  fi
+}
+
 function prepare {
-    true
+  #check_update
+  get_args $@
+  set_argvars $args
+}
+
+function get_args {
+  input=$(echo "$@")
+  args=$(echo "$input" | grep -o -e "-h" -e "--help" -e "-6" -e "--force-ipv6" -e "-4" -e "--force-ipv4" -e "-y" -e "--yes" -e "-n" -e "--no" -e "-w" -e "--wait" -e "-u" -e "--update" -e "-f" -e "--fast" -e "-s" -e "--simple" | xargs)
+  for arg in $args; do
+    input=$(echo "$input" | sed "s/$arg//g")
+  done
+
+# needs work
+#  argcheck=$(echo $input | grep -o -e " -* " | xargs)
+#  echo $argcheck
+#  if [[ -n "$argcheck" ]];then
+#    for arg in $argcheck; do
+#      echo "the given argument \""$arg"\" is not known"
+#    done
+#  fi
+}
+
+function set_argvars {
+  if [[ $@ =~ -6 ]] || [[ $@ =~ --force-ipv6 ]];then
+    only6=true
+  fi
 }
 
 function main {
-    true
+  true
 }
 
 if [[ -n $1 ]];then
-  prepare
-  main
+  prepare $@
+  main "$input"
+elif [[ "$1" == "-u" ]];then
+  run_update
+elif [[ "$1" == "-h" ]];then
+  check_update
+  echo "$show_help"
 else
+  #check_update
   echo "$show_help"
 fi
