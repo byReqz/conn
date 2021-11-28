@@ -76,6 +76,10 @@ function get_args {
 #      echo "the given argument \""$arg"\" is not known"
 #    done
 #  fi
+
+  #quick fix to prevent nslookups interactive mode being triggered by wrong arguments
+  #some other places in the code have also gotten a leading space to prevent similar issues
+  input=$(echo "$input" | tr -d "-")
 }
 
 function set_argvars {
@@ -104,7 +108,7 @@ function set_argvars {
 
 function validate {
   for arg in $@; do
-    if $(ip route show "$arg" 2&> /dev/null);then
+    if $(ip route show " $arg" 2&> /dev/null);then
       hosts="$hosts $arg"
     elif $(nslookup "$arg" > /dev/null);then
       hosts="$hosts $arg"
