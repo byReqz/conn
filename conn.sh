@@ -122,11 +122,22 @@ function main {
   if [[ $simpleoutput == true ]] && [[ -n $hosts ]];then
     echo "-------------------Availability----------------------"
     fping $only -e $@
-    quickport=$(nping $only -c1 -p22,222,3389,135 $@ | grep -e "completed")
-    if [[ -n $quickport ]];then
-      echo ""
-      echo "$quickport"
-    fi
+    echo ""
+    for host in $@;do
+      linuxping=$(nping $only -c1 -p22,222 "$host")
+      if [[ -n $(echo "$linuxping" | grep -e "Successful connections: 1") ]];then
+        echo "$host seems to be booted into a Linux system"
+      elif [[ -n $(echo "$linuxping" | grep -e "Successful connections: 2") ]];then
+        echo "$host seems to be booted into the rescue system"
+      fi
+      winping135=$(nping $only -c1 -p135 "$host")
+      winping3389=$(nping $only -c1 -p3389 "$host")
+      if [[ -n $(echo "$winping135" | grep -e "Successful connections: 1") ]] && [[ -n $(echo "$winping3389" | grep -e "Successful connections: 1") ]];then
+        echo "$host seems to be booted into Windows"
+      elif [[ -z $(fping $only -a $host) ]] && [[ -n $(echo "$winping3389" | grep -e "Successful connections: 1") ]];then
+        echo "$host seems to be booted into (desktop) Windows"
+      fi
+    done
     echo "-----------------------------------------------------"
   else
     for host in $hosts;do
