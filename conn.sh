@@ -108,9 +108,9 @@ function set_argvars {
 
 function validate {
   for arg in $@; do
-    if $(ip route show " $arg" 2&> /dev/null);then
+    if ip route show " $arg" 2&> /dev/null;then
       hosts="$hosts $arg"
-    elif $(nslookup "$arg" > /dev/null);then
+    elif nslookup "$arg" > /dev/null;then
       hosts="$hosts $arg"
     else
       echo "invalid input: $arg"
