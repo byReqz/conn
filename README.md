@@ -2,6 +2,7 @@
 
 quick and dirty server availability check <br> <br>
 basically just a way too complex wrapper for nmap and fping <br>
+the pre-rewrite version is available as conn.sh.old and is no longer maintained <br>
 
 ### features: 
 - ~~multi-input detection~~ (not needed anymore since the rewrite)
