@@ -1,457 +1,229 @@
 #!/bin/bash
 # license: gpl-3
 
-if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]] && [[ -z $1 ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]] && [[ $1 != "--update" ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]] && [[ $1 != "-u" ]];then
-  echo "#############################################"
-  echo -e "\e[4mnote: newer version detected, use -u to update\e[0m"
-  echo "#############################################"
-  echo ""
-fi
-   while [ ! -n "$1" ]; do
-         echo "Usage: $0 (options) <ip>"
-         echo "Options:"
-         echo " -m/--multi -- test multiple ips / disable portscan"
-         echo " -h/--help -- show help"
-         echo " -6/--force-ipv6 -- force ipv6 portscanning (also forces portscanning)"
-         echo " -4/--force-ipv4 -- force ipv4 portscanning (also forces portscanning)"
-         echo " -y/--yes -- portscan without asking"
-         echo " -n/--no -- dont portscan"
-         echo " -p/--portscan -- same as -y"
-         echo " -w/--wait -- wait for active connection"
-         echo " -u/--update -- update the script to the newest version"
-         echo " -f/ --fast -- disable os check"
-         echo " -s/ --simple -- same as -f"
-         echo " -ww/ --wait-windows -- same as -w but for windows machines"
-         echo " -ht/ --http -- ping on port 80"
-         echo " -wh/ --wait-http -- wait for ping on port 80"
-         exit
-   done
-   while [ ! -z "$1" ]; do
-      if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]];then
-         echo "Usage: $0 (options) <ip> (y/n)"
-         echo "Options:"
-         echo " -m/--multi -- test multiple ips / disable portscan"
-         echo " -h/--help -- show help"
-         echo " -6/--force-ipv6 -- force ipv6 portscanning (also forces portscanning)"
-         echo " -4/--force-ipv4 -- force ipv4 portscanning (also forces portscanning)"
-         echo " -y/--yes -- portscan without asking"
-         echo " -n/--no -- dont portscan"
-         echo " -p/--portscan -- same as -y"
-         echo " -w/--wait -- wait for active connection"
-         echo " -u/--update -- update the script to the newest version"
-         echo " -f/ --fast -- disable os check"
-         echo " -s/ --simple -- same as -f"
-         echo " -ww/ --wait-windows -- same as -w but for windows machines"
-         echo " -ht/ --http -- ping on port 80"
-         echo " -wh/ --wait-http -- wait for ping on port 80"
-         exit
-      elif [[ $1 == "-m" ]] || [[ "$1" == "--multi" ]];then
-         echo "multi-ip mode, shorter portscan enabled"
-         echo "-------------------Availability----------------------"
-         shift
-         fping -e $@
-         echo ""
-         nping -c1 -p22,222,3389,135 $@ | grep -e "completed"
-         echo "-----------------------------------------------------"
-         exit
-      elif [[ $1 == "-f" ]] || [[ "$1" == "--fast" ]] || [[ $1 == "-s" ]] || [[ "$1" == "--simple" ]];then
-         echo "$1 used, skipping os check"
-         echo "checking connection status for $2"
-         echo "-------------------Availability----------------------"
-         fping -e $2
-         echo "-----------------------------------------------------"
-         echo "-------------------Portscan---------------------"
-         nmap --reason -Pn $2
-         echo ""
-         fping -c 4 $2
-         echo "------------------------------------------------"
-         exit
-      elif [[ $1 == "-y" ]] || [[ $1 == "-p" ]] || [[ "$1" == "--portscan" ]] || [[ "$1" == "--yes" ]];then
-         echo "checking connection status for $2"
-         fping=$(fping -a $2)
-         p135=$(nping -q1 -c1 -p135 $2)
-         p3389=$(nping -q1 -c1 -p3389 $2)
-         if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does not respond to ICMP"
-            echo "-----------------------------------------------------"
-         elif [[ $fping != "$2" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "$2 is not reachable"
-            echo "-----------------------------------------------------"
-         else
-            echo "-------------------Availability----------------------"
-            fping -e $2
-            rescue=$(nping -q1 -c1 -p22,222 $2)
-            if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
-               echo "note: this seems to be a linux machine"
-            elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this machine seems to be in the rescue system"
-            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-               echo "note: this machine seems to be booted into windows"
-            fi
-            echo "-----------------------------------------------------"
-	      fi
-         echo "-------------------Portscan---------------------"
-         nmap --reason -Pn $2
-         echo ""
-         fping -c 4 $2
-         echo "------------------------------------------------"
-         exit
-      elif [[ $1 == "-n" ]] || [[ "$1" == "--no" ]];then
-         fping=$(fping -a $2)
-         p135=$(nping -q1 -c1 -p135 $2)
-         p3389=$(nping -q1 -c1 -p3389 $2)
-         if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does not respond to ICMP"
-            echo "-----------------------------------------------------"
-         elif [[ $fping != "$2" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "$2 is not reachable"
-            echo "-----------------------------------------------------"
-         else
-            echo "-------------------Availability----------------------"
-            fping -e $2
-            rescue=$(nping -q1 -c1 -p22,222 $2)
-            if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
-               echo "note: this seems to be a linux machine"
-            elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this machine seems to be in the rescue system"
-            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-               echo "note: this machine seems to be booted into windows"
-            fi
-            echo "-----------------------------------------------------"
-	      fi
-         exit
-      elif [[ $1 == "-6" ]] || [[ "$1" == "--force-ipv6" ]];then
-         echo "-6 used, forcing IPv6 portscanning"
-         if [[ "$2" =~ http ]];then
-            echo "url detected, exiting"
-            exit
-         fi
-         echo "checking connection status for $2"
-         fping=$(fping -6 -a $2)
-         p135=$(nping -6 -q1 -c1 -p135 $2)
-         p3389=$(nping -6 -q1 -c1 -p3389 $2)
-         if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does not respond to ICMP"
-            echo "-----------------------------------------------------"
-         elif [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does respond to ICMP"
-            fping -e -6 $2
-            echo "-----------------------------------------------------" 
-         elif [[ $fping != "$2" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "$2 is not reachable"
-            echo "-----------------------------------------------------"
-         else
-            echo "-------------------Availability----------------------"
-            fping -6 -e $2
-            rescue=$(nping -6 -q1 -c1 -p22,222 $2)
-            if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
-               echo "note: this seems to be a linux machine"
-            elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this machine seems to be in the rescue system"
-            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-               echo "note: this machine seems to be booted into windows"
-            fi
-            echo "-----------------------------------------------------"
-	      fi
-         echo "-------------------Portscan---------------------"
-         nmap --reason -Pn -6 $2
-         echo ""
-         fping -6 -c 4 $2
-         echo "------------------------------------------------"
-         exit
-      elif [[ $1 == "-4" ]] || [[ "$1" == "--force-ipv4" ]];then
-         echo "-4 used, forcing IPv4 portscanning"
-         echo "checking connection status for $2"
-         fping=$(fping -4 -a $2)
-         p135=$(nping -4 -q1 -c1 -p135 $2)
-         p3389=$(nping -4 -q1 -c1 -p3389 $2)
-         if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does not respond to ICMP"
-            echo "-----------------------------------------------------"
-         elif [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does respond to ICMP"
-            fping -e -4 $2
-            echo "-----------------------------------------------------" 
-         elif [[ $fping != "$2" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "$2 is not reachable"
-            echo "-----------------------------------------------------"
-         else
-            echo "-------------------Availability----------------------"
-            fping -4 -e $2
-            rescue=$(nping -4 -q1 -c1 -p22,222 $2)
-            if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
-               echo "note: this seems to be a linux machine"
-            elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this machine seems to be in the rescue system"
-            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-               echo "note: this machine seems to be booted into windows"
-            fi
-            echo "-----------------------------------------------------"
-	      fi
-         echo "-------------------Portscan---------------------"
-         nmap -4 --reason -Pn $2
-         echo ""
-         fping -4 -c 4 $2
-         echo "------------------------------------------------"
-         exit
-      elif [[ $1 == "-u" ]] || [[ "$1" == "--update" ]];then
-          if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]];then
-          wget -O $0 --quiet "https://raw.githubusercontent.com/byReqz/conn/main/conn.sh"
-          echo "#############################################"
-          echo -e "\e[4mscript has been updated to the newest version\e[0m"
-          echo "#############################################"
-          exit
-        elif [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) = $(md5sum $0 | cut -c -32) ]];then
-         echo "#############################################"
-         echo "no newer version found"
-         echo "#############################################"
-         exit
+show_help="conn: a quick and dirty server availability check
+
+usage:
+  "$0" <args> [IP(s)/hostname(s)]
+
+arguments:
+  -h / --help       show help page (this)
+  -6 / --force-ipv6 force ipv6 portscanning (also forces portscanning)
+  -4 / --force-ipv4 force ipv4 portscanning (also forces portscanning)
+  -y / --yes        portscan without asking
+  -n / --no         dont portscan
+  -w / --wait       wait for active connection
+  -u / --update     update the script
+  -f / --fast       disable os check
+  -s / --simple     simplify output"
+
+function check_update {
+  if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]] && [[ -z $1 ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]] && [[ $1 != "--update" ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]] && [[ $1 != "-u" ]];then
+    echo "#############################################"
+    echo -e "\e[4mnote: newer version detected, use -u to update\e[0m"
+    echo "#############################################"
+    echo ""
+  fi
+}
+
+function run_update {
+  if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]];then
+    wget -O $0 --quiet "https://raw.githubusercontent.com/byReqz/conn/main/conn.sh"
+    echo "#############################################"
+    echo -e "\e[4mscript has been updated to the newest version\e[0m"
+    echo "#############################################"
+    exit
+  elif [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) = $(md5sum $0 | cut -c -32) ]];then
+    echo "#############################################"
+    echo "no newer version found"
+    echo "#############################################"
+    exit
+  fi
+}
+
+function prepare {
+  check_update
+  get_args "$@"
+  set_argvars $args
+  validate $input
+}
+
+function get_args {
+  input=$(echo " $@")
+  args=$(echo "$input" | grep -o -e "-h" -e "--help" -e "-6" -e "--force-ipv6" -e "-4" -e "--force-ipv4" -e "-y" -e "--yes" -e "-n" -e "--no" -e "-w" -e "--wait" -e "-u" -e "--update" -e "-f" -e "--fast" -e "-s" -e "--simple" | xargs)
+  for arg in $args; do
+    input=$(echo "$input" | sed "s/$arg//g")
+  done
+
+  #quick fix to prevent nslookups interactive mode being triggered by invalid arguments
+  #some other places in the code have also gotten a leading space to prevent similar issues
+  input=$(echo "$input" | tr -d "-")
+}
+
+function set_argvars {
+  if [[ $@ =~ -6 ]] || [[ $@ =~ --force-ipv6 ]];then
+    only="-6"
+  fi
+  if [[ $@ =~ -4 ]] || [[ $@ =~ --force-ipv4 ]];then
+    only="-4"
+  fi
+  if [[ $@ =~ -y ]] || [[ $@ =~ --yes ]];then
+    doportscan=true
+  fi
+  if [[ $@ =~ -n ]] || [[ $@ =~ --no ]];then
+    doportscan=false
+  fi
+  if [[ $@ =~ -s ]] || [[ $@ =~ --simple ]];then
+    simpleoutput=true
+  fi
+  if [[ $@ =~ -w ]] || [[ $@ =~ --wait ]];then
+    waitcheck=true
+  fi
+  if [[ $@ =~ -f ]] || [[ $@ =~ --fast ]];then
+    oscheck=false
+  fi
+}
+
+function validate {
+  for arg in $@; do
+    if ip route show " $arg" 2&> /dev/null;then
+      hosts="$hosts $arg"
+    elif nslookup "$arg" > /dev/null;then
+      hosts="$hosts $arg"
+    else
+      echo "invalid input: $arg"
+    fi
+  done
+}
+
+function main {
+  if [[ $simpleoutput == true ]] && [[ -n $hosts ]];then
+    echo "-------------------Availability----------------------"
+    fping $only -e $@
+    if [[ $oscheck != "false" ]];then
+      echo ""
+      for host in $@;do
+        linuxping=$(nping $only -c1 -p22,222 "$host")
+        if [[ -n $(echo "$linuxping" | grep -e "Successful connections: 1") ]];then
+          echo "$host seems to be booted into a Linux system"
+        elif [[ -n $(echo "$linuxping" | grep -e "Successful connections: 2") ]];then
+          echo "$host seems to be booted into the rescue system"
         fi
-      elif [[ "$1" == "-w" ]] || [[ "$1" == "--wait" ]];then
-         echo "-w used, waiting for active connection"
-         echo "checking connection status for $2"
-         fping=$(fping -a $2)
-         p135=$(nping -q1 -c1 -p135 $2)
-         p3389=$(nping -q1 -c1 -p3389 $2)
-         if [[ $fping != "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$2" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does not respond to ICMP"
-            notify-send "$2 is now reachable" "and seems to be a windows machine" -u normal -t 30000 -a conn
-            echo "-----------------------------------------------------"
-         elif [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does respond to ICMP"
-            fping -e $2
-            notify-send "$2 is now reachable" "and seems to be a windows machine" -u normal -t 30000 -a conn
-            echo "-----------------------------------------------------" 
-         else
-            while [[ "$(fping -m -q -u $2)" == "$2" ]]; do :
-               done
-            echo "-------------------Availability----------------------"
-            fping -e $2
-            rescue=$(nping -q1 -c1 -p22,222 $2)
-            if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
-               echo "note: this seems to be a linux machine"
-               notify-send "$2 is now reachable" "and seems to be in a linux system" -u normal -t 30000 -a conn
-            elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this machine seems to be in the rescue system"
-               notify-send "$2 is now reachable" "and seems to be in the rescue system" -u normal -t 30000 -a conn
-            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-               echo "note: this machine seems to be booted into windows"
-               notify-send "$2 is now reachable" "and seems to be booted into windows" -u normal -t 30000 -a conn
-            else
-               notify-send "$2 is now reachable" -u normal -t 30000 -a conn
-            fi
-            echo "-----------------------------------------------------"
-	      fi
-         echo "portscan? (y/n) (default: y)"
-            read portscan
-            if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
-               echo "-------------------Portscan---------------------"
-               nmap --reason -Pn $2
-               echo ""
-               fping -c 4 $2
-               echo "------------------------------------------------"
-               exit
-            else
-               exit
-            fi
-         exit
-      elif [[ "$1" == "-ww" ]] || [[ "$1" == "--wait-windows" ]];then
-         echo "-w used, waiting for active connection"
-         echo "checking connection status for $2"
-         fping=$(fping -a $2)
-         p135=$(nping -q1 -c1 -p135 $2)
-         p3389=$(nping -q1 -c1 -p3389 $2)
-         if [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 0") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a unix machine which does respond to ICMP"
-            notify-send "$2 is a unix machine" -u normal -t 30000 -a conn
-            echo "-----------------------------------------------------"
-         elif [[ $fping = "$2" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does respond to ICMP"
-            notify-send "$2 is a windows machine" -u normal -t 30000 -a conn
-            echo "-----------------------------------------------------"
-         else
-            while [[ -z $(nping -q1 -c1 -p135 $2 | grep "Successful connections: 1") ]]; do :
-               done
-            echo "-------------------Availability----------------------"
-            rescue=$(nping -q1 -c1 -p22,222 $2)
-            if [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this machine seems to be in the rescue system"
-               notify-send "$2 is now reachable" "and seems to be in the rescue system" -u normal -t 30000 -a conn
-            else
-               echo "$2 is now booted into windows"
-               notify-send "$2 is now booted into windows" -u normal -t 30000 -a conn
-            fi
-            echo "-----------------------------------------------------"
-	      fi
-         echo "portscan? (y/n) (default: y)"
-            read portscan
-            if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
-               echo "-------------------Portscan---------------------"
-               nmap --reason -Pn $2
-               echo ""
-               fping -c 4 $2
-               echo "------------------------------------------------"
-               exit
-            else
-               exit
-            fi
-         exit
-      elif [[ ! "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ "$1" =~ [:] ]] && [[ ! "$2" =~ [:] ]] && [[ -z "$3" ]];then
-         if [[ "$1" =~ http ]];then
-            echo "url detected, exiting"
-            exit
-         fi
-         echo "detected IPv6 adress -> using -6"
-         echo "checking connection status for $1"
-         fping=$(fping -6 -a $1)
-         p135=$(nping -6 -q1 -c1 -p135 $1)
-         p3389=$(nping -6 -q1 -c1 -p3389 $1)
-         if [[ $fping != "$1" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$1" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does not respond to ICMP"
-            echo "-----------------------------------------------------"
-         elif [[ $fping != "$1" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping == "$1" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "$2 is not reachable"
-            echo "-----------------------------------------------------"
-         else
-            echo "-------------------Availability----------------------"
-            fping -6 -e $1
-            rescue=$(nping -6 -q1 -c1 -p22,222 $1)
-            if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
-               echo "note: this seems to be a linux machine"
-            elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this machine seems to be in the rescue system"
-            elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-               echo "note: this machine seems to be booted into windows"
-            fi
-            echo "-----------------------------------------------------"
-	      fi
-         echo "portscan? (y/n) (default: y)"
-            read portscan
-            if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
-               echo "-------------------Portscan---------------------"
-               nmap --reason -Pn -6 $1
-               echo ""
-               fping -6 -c 4 $1
-               echo "------------------------------------------------"
-            else
-               exit
-            fi
-         exit
-      elif [[ "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ "$2" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] || [[ "$3" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ ! "$1" =~ [-] ]];then
-         echo "multi-ip input detected, shorter portscan enabled"
-         echo "-------------------Availability----------------------"
-         fping -e $@
-         echo ""
-         nping -c1 -p22,222,3389,135 $@ | grep -e "completed"
-         echo "-----------------------------------------------------"
-         exit
-      elif [[ ! "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ ! "$2" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ "$1" =~ [:] ]] && [[ "$2" =~ [:] ]] || [[ ! "$3" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ ! "$1" =~ [-] ]] && [[ ! "$1" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ ! "$2" =~ [0-9]{1,3}(\.[0-9]{1,3}){3} ]] && [[ "$1" =~ [:] ]] && [[ "$2" =~ [:] ]];then
-         echo "multi-ipv6 input detected, shorter portscan enabled"
-         echo "-------------------Availability----------------------"
-         fping -e -6 $@
-         echo ""
-         nping -6 -c1 -p22,222,3389,135 $@ | grep -e "completed"
-         echo "-----------------------------------------------------"
-         exit
-      elif [[ "$1" == "-ht" ]] || [[ "$1" == "--http" ]];then
-         echo "checking connection status for $2"
-         fping=$(nping -c1 -p80 $2)
-         if [[ -n $(echo $fping | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "$2 is reachable via port 80"
-            echo "-----------------------------------------------------"
-         else
-            echo "-------------------Availability----------------------"
-            echo "$2 is not reachable via port 80"
-            echo "-----------------------------------------------------"
-	      fi
-         echo "portscan? (y/n) (default: y)"
-            read portscan
-            if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
-               echo "-------------------Portscan---------------------"
-               nmap --reason -Pn $2
-               echo ""
-               nping -c4 -p80 $2
-               echo "------------------------------------------------"
-               exit
-            else
-               exit
-            fi
-      elif [[ "$1" == "-wh" ]] || [[ "$1" == "--wait-http" ]];then
-         echo "-wh used, waiting for active connection"
-         echo "checking connection status for $2"
-         while [[ -z $(nping -c1 -p80 $2 | grep -e "Successful connections: 1") ]]; do :
+        winping135=$(nping $only -c1 -p135 "$host")
+        winping3389=$(nping $only -c1 -p3389 "$host")
+        if [[ -n $(echo "$winping135" | grep -e "Successful connections: 1") ]] && [[ -n $(echo "$winping3389" | grep -e "Successful connections: 1") ]];then
+          echo "$host seems to be booted into Windows"
+        elif [[ -z $(fping $only -a $host) ]] && [[ -n $(echo "$winping3389" | grep -e "Successful connections: 1") ]];then
+          echo "$host seems to be booted into (desktop) Windows"
+        fi
+    done
+    fi
+    echo "-----------------------------------------------------"
+  else
+    for host in $hosts;do
+      if [[ $waitcheck == true ]];then
+        echo "-w used, waiting for active connection"
+        echo "checking connection status for $host"
+        fping=$(fping $only -a $host)
+        if [[ ! $oscheck == false ]];then
+          p135=$(nping $only -q1 -c1 -p135 $host)
+          p3389=$(nping $only -q1 -c1 -p3389 $host)
+        fi
+        if [[ $fping != "$host" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$host" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+          echo "-------------------Availability----------------------"
+          echo "note: this seems to be a windows machine which does not respond to ICMP"
+          notify-send "$host is now reachable" "and seems to be a windows machine" -u normal -t 30000 -a conn
+          echo "-----------------------------------------------------"
+        elif [[ $fping = "$host" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]];then
+          echo "-------------------Availability----------------------"
+          echo "note: this seems to be a windows machine which does respond to ICMP"
+          fping -e $host
+          notify-send "$host is now reachable" "and seems to be a windows machine" -u normal -t 30000 -a conn
+          echo "-----------------------------------------------------" 
+        else
+          while [[ "$(fping $only -m -q -u $host)" == "$host" ]]; do :
             done
-         echo "-------------------Availability----------------------"
-         echo "$2 is now reachable via port 80"
-         notify-send "$2 is now reachable via port 80" -u normal -t 30000 -a conn
-         echo "-----------------------------------------------------"
-         echo "portscan? (y/n) (default: y)"
-            read portscan
-            if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
-               echo "-------------------Portscan---------------------"
-               nmap --reason -Pn $2
-               echo ""
-               nping -c4 -p80 $2
-               echo "------------------------------------------------"
-               exit
-            else
-               exit
-            fi
-         exit
+          echo "-------------------Availability----------------------"
+          fping -e $host
+          if [[ ! $oscheck == false ]];then
+            rescue=$(nping $only -q1 -c1 -p22,222 $host)
+          fi
+          if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
+            echo "note: this seems to be a linux machine"
+            notify-send "$host is now reachable" "and seems to be in a linux system" -u normal -t 30000 -a conn
+          elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
+            echo "note: this machine seems to be in the rescue system"
+            notify-send "$host is now reachable" "and seems to be in the rescue system" -u normal -t 30000 -a conn
+          elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+            echo "note: this machine seems to be booted into windows"
+            notify-send "$host is now reachable" "and seems to be booted into windows" -u normal -t 30000 -a conn
+          else
+            notify-send "$host is now reachable" -u normal -t 30000 -a conn
+          fi
+          echo "-----------------------------------------------------"
+        fi
       else
-         echo "checking connection status for $1"
-         fping=$(fping -a $1)
-         p135=$(nping -q1 -c1 -p135 $1)
-         p3389=$(nping -q1 -c1 -p3389 $1)
-         if [[ $fping != "$1" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$1" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "note: this seems to be a windows machine which does not respond to ICMP"
-            echo "-----------------------------------------------------"
-         elif [[ $fping != "$1" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$1" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
-            echo "-------------------Availability----------------------"
-            echo "$1 is not reachable"
-            echo "-----------------------------------------------------"
-         else
-            echo "-------------------Availability----------------------"
-            fping -e $1
-            rescue=$(nping -q1 -c1 -p22,222 $1)
+        echo "checking connection status for $host"
+        fping=$(fping $only -a $host)
+        if [[ ! $oscheck == false ]];then
+          p135=$(nping $only -q1 -c1 -p135 $host)
+          p3389=$(nping $only -q1 -c1 -p3389 $host)
+        fi
+        if [[ $fping != "$host" ]] && [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$host" ]] && [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
+          echo "-------------------Availability----------------------"
+          echo "note: this seems to be a windows machine which does not respond to ICMP"
+          echo "-----------------------------------------------------"
+        elif [[ $fping != "$host" ]] && [[ -z $(echo $p135 | grep "Successful connections: 1") ]] || [[ $fping != "$host" ]] && [[ -z $(echo $p3389 | grep "Successful connections: 1") ]];then
+          echo "-------------------Availability----------------------"
+          echo "$host is not reachable"
+          echo "-----------------------------------------------------"
+        else
+          echo "-------------------Availability----------------------"
+          fping $only -e $host
+          if [[ ! $oscheck == false ]];then
+            rescue=$(nping $only -q1 -c1 -p22,222 $host)
             if [[ -n $(echo $rescue | grep "Successful connections: 1") ]];then
-               echo "note: this seems to be a linux machine"
+              echo "note: this seems to be a linux machine"
             elif [[ -n $(echo $rescue | grep "Successful connections: 2") ]];then
-               echo "note: this machine seems to be in the rescue system"
+              echo "note: this machine seems to be in the rescue system"
             elif [[ -n $(echo $p135 | grep "Successful connections: 1") ]] || [[ -n $(echo $p3389 | grep "Successful connections: 1") ]];then
-               echo "note: this machine seems to be booted into windows"
+              echo "note: this machine seems to be booted into windows"
             fi
-            echo "-----------------------------------------------------"
-	      fi
-         echo "portscan? (y/n) (default: y)"
-            read portscan
-            if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
-               echo "-------------------Portscan---------------------"
-               nmap --reason -Pn $1
-               echo ""
-               fping -c 4 $1
-               echo "------------------------------------------------"
-               exit
-            else
-               exit
-            fi
-   fi
-   done
+          fi
+          echo "-----------------------------------------------------"
+        fi
+      fi
+      if [[ ! $doportscan == false ]];then
+        if [[ $doportscan == true ]];then
+          portscan=y
+        else
+          echo "portscan? (y/n) (default: y)"
+          read portscan
+        fi
+        if [[ "$portscan" = "y" ]] || [[ -z "$portscan" ]]; then
+          echo "-------------------Portscan---------------------"
+          nmap $only --reason -Pn $host
+          echo ""
+          fping $only -c 4 $host
+          echo "------------------------------------------------"
+          echo ""
+        else
+          echo ""
+        fi
+      fi
+    done
+  fi
+}
+
+if [[ -n $1 ]];then
+  prepare "$@"
+  main "$hosts"
+elif [[ "$1" == "-u" ]];then
+  run_update
+elif [[ "$1" == "-h" ]];then
+  check_update
+  echo "$show_help"
+else
+  check_update
+  echo "$show_help"
+fi
