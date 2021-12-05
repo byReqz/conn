@@ -17,19 +17,6 @@ arguments:
   -f / --fast       disable os check
   -s / --simple     simplify output"
 
-show_notfound="[error] argument not found
-
-available arguments:
-  -h / --help       show help page (this)
-  -6 / --force-ipv6 force ipv6 portscanning (also forces portscanning)
-  -4 / --force-ipv4 force ipv4 portscanning (also forces portscanning)
-  -y / --yes        portscan without asking
-  -n / --no         dont portscan
-  -w / --wait       wait for active connection
-  -u / --update     update the script
-  -f / --fast       disable os check
-  -s / --simple     simplify output"
-
 function check_update {
   if [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]] && [[ -z $1 ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]] && [[ $1 != "--update" ]] || [[ $(curl -s https://raw.githubusercontent.com/byReqz/conn/main/hash) != $(md5sum $0 | cut -c -32) ]] && [[ $1 != "-u" ]];then
     echo "#############################################"
@@ -55,7 +42,7 @@ function run_update {
 }
 
 function prepare {
-  #check_update
+  check_update
   get_args "$@"
   set_argvars $args
   validate $input
@@ -68,16 +55,7 @@ function get_args {
     input=$(echo "$input" | sed "s/$arg//g")
   done
 
-# needs work
-#  argcheck=$(echo $input | grep -o -e " -* " | xargs)
-#  echo $argcheck
-#  if [[ -n "$argcheck" ]];then
-#    for arg in $argcheck; do
-#      echo "the given argument \""$arg"\" is not known"
-#    done
-#  fi
-
-  #quick fix to prevent nslookups interactive mode being triggered by wrong arguments
+  #quick fix to prevent nslookups interactive mode being triggered by invalid arguments
   #some other places in the code have also gotten a leading space to prevent similar issues
   input=$(echo "$input" | tr -d "-")
 }
@@ -122,22 +100,24 @@ function main {
   if [[ $simpleoutput == true ]] && [[ -n $hosts ]];then
     echo "-------------------Availability----------------------"
     fping $only -e $@
-    echo ""
-    for host in $@;do
-      linuxping=$(nping $only -c1 -p22,222 "$host")
-      if [[ -n $(echo "$linuxping" | grep -e "Successful connections: 1") ]];then
-        echo "$host seems to be booted into a Linux system"
-      elif [[ -n $(echo "$linuxping" | grep -e "Successful connections: 2") ]];then
-        echo "$host seems to be booted into the rescue system"
-      fi
-      winping135=$(nping $only -c1 -p135 "$host")
-      winping3389=$(nping $only -c1 -p3389 "$host")
-      if [[ -n $(echo "$winping135" | grep -e "Successful connections: 1") ]] && [[ -n $(echo "$winping3389" | grep -e "Successful connections: 1") ]];then
-        echo "$host seems to be booted into Windows"
-      elif [[ -z $(fping $only -a $host) ]] && [[ -n $(echo "$winping3389" | grep -e "Successful connections: 1") ]];then
-        echo "$host seems to be booted into (desktop) Windows"
-      fi
+    if [[ $oscheck != "false" ]];then
+      echo ""
+      for host in $@;do
+        linuxping=$(nping $only -c1 -p22,222 "$host")
+        if [[ -n $(echo "$linuxping" | grep -e "Successful connections: 1") ]];then
+          echo "$host seems to be booted into a Linux system"
+        elif [[ -n $(echo "$linuxping" | grep -e "Successful connections: 2") ]];then
+          echo "$host seems to be booted into the rescue system"
+        fi
+        winping135=$(nping $only -c1 -p135 "$host")
+        winping3389=$(nping $only -c1 -p3389 "$host")
+        if [[ -n $(echo "$winping135" | grep -e "Successful connections: 1") ]] && [[ -n $(echo "$winping3389" | grep -e "Successful connections: 1") ]];then
+          echo "$host seems to be booted into Windows"
+        elif [[ -z $(fping $only -a $host) ]] && [[ -n $(echo "$winping3389" | grep -e "Successful connections: 1") ]];then
+          echo "$host seems to be booted into (desktop) Windows"
+        fi
     done
+    fi
     echo "-----------------------------------------------------"
   else
     for host in $hosts;do
@@ -244,6 +224,6 @@ elif [[ "$1" == "-h" ]];then
   check_update
   echo "$show_help"
 else
-  #check_update
+  check_update
   echo "$show_help"
 fi
