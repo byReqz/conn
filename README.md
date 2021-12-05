@@ -1,6 +1,6 @@
 # conn
 
-__the script is actively being rewritten on this branch and might not be on a usable state right now__
+__this branch has been merged into main and is no longer maintained__
 
 quick and dirty server availability check <br> <br>
 basically just a way too complex wrapper for nmap and fping <br>
