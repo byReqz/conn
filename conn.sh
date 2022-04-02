@@ -57,7 +57,14 @@ function get_args {
 
   #quick fix to prevent nslookups interactive mode being triggered by invalid arguments
   #some other places in the code have also gotten a leading space to prevent similar issues
-  input=$(echo "$input" | tr -d "-")
+  for v in $input; do
+    if [[ ! $(echo $v | cut -c1) == "-" ]];then
+      newinput="$newinput $v"
+    else
+      newinput="$newinput $(echo $v | cut -c 2-)"
+    fi
+  done
+  input="$newinput"
 }
 
 function set_argvars {
@@ -86,9 +93,7 @@ function set_argvars {
 
 function validate {
   for arg in $@; do
-    if [[ ! "$arg" =~ : ]];then
-      arg=" $arg" # fixes issue with leading space on ipv6 adresses
-    else
+    if [[ "$arg" =~ : ]];then
       only="-6" # enable ipv6, this needs a more complex function to avoid treating every argument as v6
     fi
     if ip route show "$arg" 2&> /dev/null;then
